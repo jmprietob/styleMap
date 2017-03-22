@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<title>Style Map application</title>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="css/bootstrap.min.css" />
+	<link rel="stylesheet" href="css/leaflet.css" />
+	<link rel="stylesheet" href="css/myStyle.css" />
+	<script src="js/jquery-1.12.4.min.js"></script>	
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/leaflet.js"></script>
+
+
+
+</head>
+<body>
+
+	<div id='map'></div>
+
+	<!-- The Modal -->
+	<div id="myModal" class="modal">
+		<!-- Modal content -->
+		<div class="modal-content panel ">
+			<div class="panel-heading">
+				<h2 class="panel-title">Style Map - Stylator<span class="close">&times;</span></h2>
+			</div>
+			<div class="panel-body">
+
+				<div class="form-group">
+					<label class="col-lg-2 control-label">Size - Radius</label>
+					<div class="col-lg-2">
+						<input class="form-control" id="size" type="text" value="5">
+					</div>
+					<label class="col-lg-2 control-label">Fill Color 1</label>
+					<div class="col-lg-2">
+						<input class="form-control" id="fill1" type="color" value="#ff0000">
+					</div>
+					<label class="col-lg-2 control-label">Fill Color 2</label>
+					<div class="col-lg-2">
+						<input class="form-control" id="fill2" type="color" value="#ff0000">
+					</div>	  
+					<label class="col-lg-2 control-label">Fill Opacity</label>
+					<div class="col-lg-2">
+						<input class="form-control" id="fillo" type="text" value="0.5">
+					</div>
+					<label class="col-lg-2 control-label">Outline color</label>
+					<div class="col-lg-2">
+						<input class="form-control" id="color" type="color" value="#ff0000">
+					</div>
+					<label class="col-lg-2 control-label">Outline Opacity</label>
+					<div class="col-lg-2">
+						<input class="form-control" id="oo" type="text" value="0.5">
+					</div>
+					<div class="col-lg-4"> 
+						<a href="#" class="btn btn-default" id="btnAct">Update style</a>
+					</div>	  
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="js/mapa.js"></script>
+	<script src="js/util.js"></script>
+</body>
+</html>
