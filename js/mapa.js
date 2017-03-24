@@ -1,6 +1,7 @@
 
 var map = L.map('map').setView([42, -1], 3);
 
+
 	// http://www.coffeegnome.net/creating-contr…button-leaflet
 	var customControl =  L.Control.extend({
 
@@ -29,6 +30,9 @@ var map = L.map('map').setView([42, -1], 3);
 
 //TODO: hacer dinámicos los intervalos
 // Colores
+
+
+//////
 getGradientColor = function(start_color, end_color, percent) {
    // strip the leading # if it's there
    start_color = start_color.replace(/^\s*#|\s*$/g, '');
@@ -85,17 +89,31 @@ function colorInt(){
 
 
 // 	tres intervalos para población
+
 function getColor(d) {
-	return d > 1000000 ? colorInt()[0] :
-		   d > 10000   ? colorInt()[1] :
-			             colorInt()[2];
+	return d > 10000000 ? colorInt()[0] :
+	d > 1000000   ? colorInt()[1] :
+	colorInt()[2];
 }
+
+function colorFeaturecla(d){
+    return d == valoresUnicos[0] ? '#DAF7A6' :
+           d == valoresUnicos[1] ? '#FFC300' :
+           d == valoresUnicos[2] ? '#FF5733' :
+           d == valoresUnicos[3] ? '#900C3F' :
+           d == valoresUnicos[4] ? '#905d0c' :
+           d == valoresUnicos[5] ? '#3f900c' :
+           d == valoresUnicos[6] ? '#FFEDA0' :
+           d == valoresUnicos[7] ? '#FED976' :
+                      			  '#FFEDA0' ;
+}
+
 //	tres intervalos para radio	
 function getRadius(d) {
 	var rmax = document.getElementById("size").value;
-	return d > 1000000 ? rmax :
-	       d > 10000   ? rmax/2 :
-	                     2;
+	return d > 10000000 ? rmax :
+	d > 1000000   ? rmax/2 :
+	2;
 }
 // Estilo inicial		
 function style(feature) {
@@ -120,11 +138,11 @@ var cartodbq = new L.geoJson('',{
 			layer.bindPopup(feature.properties.name);
 		}	
 	});
-		cartodbq.addTo(map);
+cartodbq.addTo(map);
 
-		$.ajax({
-			dataType: "json",
-			url: "data/cartodb-query.geojson",
+$.ajax({
+	dataType: "json",
+			url: "https://xavijam.carto.com/api/v2/sql?q=SELECT%20*%20FROM%20ne_10m_populated_places_simple&format=GeoJSON",//data/cartodb-query.geojson
 			success: function(data) {
 				$(data.features).each(function(key, data) {
 					cartodbq.addData(data);
@@ -132,66 +150,123 @@ var cartodbq = new L.geoJson('',{
 			}
 		}).error(function() {});
 
+//Por ahora colores para tres intervalos en campo numerico
+// 8 colores para featurecla los elementos únicos.
+
+
 function changeStyle(data){
 
 		// recojo datos
-		//var size = document.getElementById("size").value;
-		//var fill = document.getElementById("fill").value;	
+		var size = document.getElementById("size").value;
+		var fill = document.getElementById("fill1").value;	
 		var fillo = document.getElementById("fillo").value;
 		var color = document.getElementById("color").value;
 		var oo = document.getElementById("oo").value;
-
+		var campo = document.getElementById("select").value;
 		//LEGEND EXITS
 		leyenda = document.getElementsByClassName('info legend leaflet-control');
 		if (leyenda != undefined){
 			removeElements(leyenda);
 		}
 		
-		cartodbq.eachLayer(function (layer) {
-			
-			layer.setStyle({radius : getRadius(layer.feature.properties.pop_max),
-							fillColor : getColor(layer.feature.properties.pop_max),
-							fillOpacity : fillo,
-							color : color,
-							opacity: oo});
-		});
+		if(campo=='featurecla'){
+				cartodbq.eachLayer(function (layer) {
+					layer.setStyle({radius : size,
+						fillColor : colorFeaturecla(layer.feature.properties.featurecla),
+						fillOpacity : fillo,
+						color : color,
+						opacity: oo});
+				});
+		}else{
+			if(campo=='pop_max'){
+				cartodbq.eachLayer(function (layer) {
 
-		var legend = L.control({position: 'bottomright'});
-
-		legend.onAdd = function (map) {
-
-			var div = L.DomUtil.create('div', 'info legend'),
-			grades = interv(),
-			labels = [];
-
-			// loop through our density intervals and generate a label with a colored square for each interval
-			for (var i = 0; i < grades.length; i++) {
-				div.innerHTML +=
-				'<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
-				grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+					layer.setStyle({radius : getRadius(layer.feature.properties.pop_max),
+						fillColor : getColor(layer.feature.properties.pop_max),
+						fillOpacity : fillo,
+						color : color,
+						opacity: oo});
+				});
+			}else{
+				cartodbq.eachLayer(function (layer) {
+					layer.setStyle({radius : size,
+						fillColor : fill,
+						fillOpacity : fillo,
+						color : color,
+						opacity: oo});
+				});
 			}
+		}
+		
+		var legend = L.control({position: 'bottomright'});
+		
+		if (!campo=='') {
+			if (campo=='pop_max') {
+			legend.onAdd = function (map) {
+				var div = L.DomUtil.create('div', 'info legend'),
+				grades = interv(),
+				labels = [];
 
-			return div;
-		};
+				// loop through our density intervals and generate a label with a colored square for each interval
+				for (var i = 0; i < grades.length; i++) {
+					div.innerHTML +=
+					'<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+					grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+				}
 
-		legend.addTo(map)		
+				return div;
+			};
+			legend.addTo(map)
+			} else {
+			legend.onAdd = function (map) {
+				var div = L.DomUtil.create('div', 'info legend'),
+				grades = valoresUnicos,
+				labels = [];
+
+				// loop through our density intervals and generate a label with a colored square for each interval
+				for (var i = 0; i < grades.length; i++) {
+					div.innerHTML +=
+					'<i style="background:' + colorFeaturecla(grades[i]) + '"></i> ' +
+					grades[i] + '<br>';
+				}
+
+				return div;
+			};
+			legend.addTo(map)
+			}
+		
+		}
 }	
 
-	
-	function interv(){
-		var maximo = maximoCampo("pop_max");
-		var intervalos = [0, 10000, 10000000];
-		
-		return intervalos;
-	}
+
+function interv(){
+	var intervalos = [0, 1000000, 10000000];		
+
+	return intervalos;
+}
 
 function maximoCampo(campo){
 	var elementos = cartodbq.getLayers();
 	var max = -10000000;
-    for (var i=0 ; i<elementos.length ; i++) {
-        max = Math.max(parseInt(elementos[i]["feature"]["properties"][campo]), max);
-    }
-    return max;
+	for (var i=0 ; i<elementos.length ; i++) {
+		max = Math.max(parseInt(elementos[i]["feature"]["properties"][campo]), max);
+	}
+	return max;
 }
 
-	map.addControl(new customControl());
+function elementosUnicos(campo){
+	var url = "https://xavijam.carto.com/api/v2/sql?q=SELECT distinct("+campo+") FROM ne_10m_populated_places_simple&format=json";
+	var result = [];
+
+	$.get(url, function(data, status){
+
+		$(data.rows).each(function(key, data) {
+			result.push(data.featurecla);
+		});
+	});
+
+	return result;
+}
+var valoresUnicos = elementosUnicos("featurecla");
+
+map.addControl(new customControl());

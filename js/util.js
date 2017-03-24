@@ -32,3 +32,5 @@ function removeElements(elements){
         elements[0].parentNode.removeChild(elements[0]);
     }
 }
+
+
